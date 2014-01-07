@@ -35,8 +35,6 @@ dist_xz = (pos1, pos2) ->
 -- Distance as the crow flies
     math.sqrt (pos1.x - pos2.x)^2 + (pos1.z - pos2.z)^2
 
-rad2deg = (radians) -> 180/math.pi * radians
-
 yaw_to = (pos1, pos2) ->
 -- Yaw in radians [0, 2π) from pos1 to pos2, with 0 in the
 -- positive z-direction and π/2 in the negative x-direction.
@@ -203,7 +201,7 @@ dist_and_dir = (pos1, pos2, yaw1) ->
 -- distance (along the X-Z plane) and rotation needed to get from
 -- pos1 to pos2.
     dir = do
-        deg = rad2deg yaw_diff yaw1, yaw_to pos1, pos2
+        deg = math.deg yaw_diff yaw1, yaw_to pos1, pos2
         if math.abs(deg) < 1
             'ahead'
         else if math.abs(deg) > 134
