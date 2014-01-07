@@ -121,9 +121,9 @@ minetest.register_on_generated (minp, maxp, blockseed) ->
                 here = {x: wp.pos.x, y: y, z: wp.pos.z}
                 if minetest.get_node_light(here, NOON) == MAX_LIGHT or do
                         minetest.get_node(here).name == 'default:water_source'
-                    wp.ymax = math.min wp.ymax, y
+                    wp.ymax = math.min wp.ymax, y - 1
                 else
-                    wp.ymin = math.max wp.ymin, y + 1
+                    wp.ymin = math.max wp.ymin, y
             if wp.ymin >= wp.ymax
                 wp.pos.y = wp.ymin
                 if wp == current_waypoint 
@@ -132,7 +132,7 @@ minetest.register_on_generated (minp, maxp, blockseed) ->
 
 minetest.register_on_punchnode (pos, node, puncher) ->
     if puncher == sp and current_waypoint and current_waypoint.created and do
-            poseq pos, posplus(current_waypoint.pos, p3 0, -1, 0)
+            poseq pos, current_waypoint.pos
         msg "You found waypoint #{current_waypoint.n}."
         waypoints_visited += 1
         if current_waypoint.spawner
