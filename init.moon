@@ -20,7 +20,7 @@ minetest.register_on_joinplayer (player) ->
 msg = (text) ->
     minetest.chat_send_player 'singleplayer', text, false
 
-coinflip = -> math.random() > .5
+coinflip = -> math.random! > .5
 
 p3 = (x, y, z) -> {:x, :y, :z}
 origin = p3 0, 0, 0
