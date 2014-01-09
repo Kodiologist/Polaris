@@ -6,8 +6,10 @@ export *
 MAX_LIGHT = 15
 NOON = .5
 
-NUM_WAYPOINTS = 3
-VISIT_GOAL = NUM_WAYPOINTS + 1
+NUM_WAYPOINTS = 5
+VISIT_GOAL = 10
+gen_waypoint_coordinate = ->
+    (if coinflip! then 1 else -1) * math.random(50, 100)
 
 sp = nil
 minetest.register_on_joinplayer (player) ->
@@ -21,6 +23,9 @@ msg = (text) ->
     minetest.chat_send_player 'singleplayer', text, false
 
 coinflip = -> math.random! > .5
+
+randelm = (l) ->
+    l[math.random #l]
 
 p3 = (x, y, z) -> {:x, :y, :z}
 origin = p3 0, 0, 0
@@ -79,7 +84,6 @@ setup = ->
     inv\add_item 'main', 'default:pick_steel'
     inv\add_item 'main', 'default:axe_steel'
     inv\add_item 'main', 'default:shovel_steel'
-    inv\add_item 'main', 'default:torch 10'
     inv\add_item 'main', 'default:sign_wall 10'
 minetest.after 2, setup
 
@@ -103,8 +107,8 @@ minetest.register_on_mapgen_init (mgparams) ->
             ymin: -1/0,    -- negative infinity
             ymax: 1/0,   -- positive infinity
             pos: {
-                x: (if coinflip! then 1 else -1) * math.random(100, 200),
-                z: (if coinflip! then 1 else -1) * math.random(100, 200)}}
+                x: gen_waypoint_coordinate!,
+                z: gen_waypoint_coordinate!}}
         current_waypoint = waypoints[1]
         marked_waypoint = current_waypoint
 
@@ -142,13 +146,17 @@ minetest.register_on_punchnode (pos, node, puncher) ->
             current_waypoint.spawner = false
         if waypoints_visited < NUM_WAYPOINTS
           -- Activate the next waypoint and mark it.
-            current_waypoint = waypoints[current_waypoint.n % NUM_WAYPOINTS + 1]
+            current_waypoint = waypoints[current_waypoint.n + 1]
             marked_waypoint = current_waypoint
             if marked_waypoint.created
                 marked_waypoint.spawner = mk_waypoint_spawner marked_waypoint.pos
         elseif waypoints_visited < VISIT_GOAL
-          -- Activate the next waypoint, but don't mark it.
-            current_waypoint = waypoints[current_waypoint.n % NUM_WAYPOINTS + 1]
+          -- Activate a random waypoint (other than the current one),
+          -- but don't mark it.
+            current_waypoint = waypoints[randelm for i = 1, NUM_WAYPOINTS
+                if i == current_waypoint.n
+                    continue
+                i]
             marked_waypoint = nil
         else
             msg 'You win!'
