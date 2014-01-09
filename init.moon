@@ -8,6 +8,7 @@ NOON = .5
 
 NUM_WAYPOINTS = 5
 VISIT_GOAL = 10
+TIME_LIMIT = 15 * 60
 gen_waypoint_coordinate = ->
     (if coinflip! then 1 else -1) * math.random(50, 100)
 
@@ -74,6 +75,7 @@ yaw_diff = (yaw1, yaw2) ->
 -- * Setup
 ------------------------------------------------------------
 
+start_time = nil
 setup = ->
     sp\set_physics_override 4, -- run speed
        1.5, -- jump height
@@ -85,6 +87,7 @@ setup = ->
     inv\add_item 'main', 'default:axe_steel'
     inv\add_item 'main', 'default:shovel_steel'
     inv\add_item 'main', 'default:sign_wall 10'
+    start_time = os.time!
 minetest.after 2, setup
 
 ------------------------------------------------------------
@@ -160,6 +163,7 @@ minetest.register_on_punchnode (pos, node, puncher) ->
             marked_waypoint = nil
         else
             msg 'You win!'
+            msg "You won with #{time_left!} left."
             current_waypoint = nil
             marked_waypoint = nil
         if current_waypoint
@@ -199,10 +203,20 @@ update_hud = (dtime) ->
 minetest.register_globalstep update_hud
 
 hud_f = ->
-    if marked_waypoint
-        'Next: ' .. dist_and_dir sp\getpos!, marked_waypoint.pos, sp_yaw!
+    'Time left: ' .. time_left! .. do
+        if marked_waypoint
+            '\nNext: ' .. dist_and_dir sp\getpos!, marked_waypoint.pos, sp_yaw!
+        else
+            ''
+
+time_left = -> time_diff os.time!, start_time + TIME_LIMIT
+
+time_diff = (time1, time2) ->
+    diff = time2 - time1
+    if diff > 0
+        '%d:%02d'\format math.floor(diff/60), diff % 60
     else
-        ''
+        "---"
 
 dist_and_dir = (pos1, pos2, yaw1) ->
 -- Returns a string like "030 m, <<< 046 deg" describing the
