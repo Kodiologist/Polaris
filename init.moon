@@ -8,7 +8,9 @@ local *
 
 NUM_WAYPOINTS = 5
 VISIT_GOAL = 10
-TIME_LIMIT = 15 * 60
+TIME_LIMIT = 15 * 60  -- seconds
+START_TIMEOFDAY = 6 / 24  -- days
+END_TIMEOFDAY = (12 + 6.5) / 24  -- days
 gen_waypoint_coordinate = ->
     (if coinflip! then 1 else -1) * math.random(50, 150)
 
@@ -84,6 +86,12 @@ yaw_diff = (yaw1, yaw2) ->
 
 start_time = nil
 setup = ->
+    minetest.set_timeofday START_TIMEOFDAY
+    minetest.setting_set 'time_speed',
+        (END_TIMEOFDAY - START_TIMEOFDAY) / (TIME_LIMIT / (60*60*24))
+      -- This sets the speed of time such that the TIME_LIMIT
+      -- will take the world exactly from START_TIMEOFDAY
+      -- to END_TIMEOFDAY.
     sp\set_physics_override 4, -- run speed
        1.5, -- jump height
        1, -- gravity
