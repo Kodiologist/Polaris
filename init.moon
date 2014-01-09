@@ -7,7 +7,10 @@ local *
 ------------------------------------------------------------
 
 NUM_WAYPOINTS = 5
+  -- The number of waypoints to generate.
 VISIT_GOAL = 10
+  -- How many waypoints the player must visit to win.
+  -- Should be greater than NUM_WAYPOINTS.
 TIME_LIMIT = 15 * 60  -- seconds
 START_TIMEOFDAY = 6 / 24  -- days
 END_TIMEOFDAY = (12 + 6.5) / 24  -- days
@@ -80,11 +83,20 @@ yaw_diff = (yaw1, yaw2) ->
     else
         diff
 
+time_left = -> start_time + TIME_LIMIT - os.time!
+
+fmt_time_diff = (diff) ->
+    if diff > 0
+        '%d:%02d'\format math.floor(diff/60), diff % 60
+    else
+        "---"
+
 ------------------------------------------------------------
 -- * Setup
 ------------------------------------------------------------
 
 start_time = nil
+game_state = 'init'
 setup = ->
     minetest.set_timeofday START_TIMEOFDAY
     minetest.setting_set 'time_speed',
@@ -103,6 +115,7 @@ setup = ->
     inv\add_item 'main', 'default:shovel_steel'
     inv\add_item 'main', 'default:sign_wall 10'
     start_time = os.time!
+    game_state = 'playing'
 minetest.after 2, setup
 
 ------------------------------------------------------------
@@ -154,8 +167,8 @@ minetest.register_on_generated (minp, maxp, blockseed) ->
                 wp.created = true
 
 minetest.register_on_punchnode (pos, node, puncher) ->
-    if puncher == sp and current_waypoint and current_waypoint.created and do
-            poseq pos, current_waypoint.pos
+    if puncher == sp and current_waypoint and game_state == 'playing' and do
+            current_waypoint.created and poseq pos, current_waypoint.pos
         msg "You found waypoint #{current_waypoint.n}."
         waypoints_visited += 1
         if current_waypoint.spawner
@@ -178,8 +191,9 @@ minetest.register_on_punchnode (pos, node, puncher) ->
                 i]
             marked_waypoint = nil
         else
+            game_state = 'won'
             msg 'You win!'
-            msg "You won with #{time_left!} left."
+            msg "You won with #{fmt_time_diff time_left!} left."
             current_waypoint = nil
             marked_waypoint = nil
         if current_waypoint
@@ -219,20 +233,22 @@ update_hud = (dtime) ->
 minetest.register_globalstep update_hud
 
 hud_f = ->
-    'Time left: ' .. time_left! .. do
-        if marked_waypoint
-            '\nNext: ' .. dist_and_dir sp\getpos!, marked_waypoint.pos, sp_yaw!
-        else
-            ''
-
-time_left = -> time_diff os.time!, start_time + TIME_LIMIT
-
-time_diff = (time1, time2) ->
-    diff = time2 - time1
-    if diff > 0
-        '%d:%02d'\format math.floor(diff/60), diff % 60
+    local tl
+    if game_state == 'playing'
+        tl = time_left!
+        if tl <= 0
+            game_state = 'lost'
+            msg "Sorry; you're out of time."
+    if game_state == 'playing'
+        "Time left: #{fmt_time_diff tl}" .. do
+            if marked_waypoint
+                '\nNext: ' .. dist_and_dir sp\getpos!, marked_waypoint.pos, sp_yaw!
+            else
+                ''
+    elseif game_state == 'init'
+       'Starting the game...'
     else
-        "---"
+       'Game Over'
 
 dist_and_dir = (pos1, pos2, yaw1) ->
 -- Returns a string like "030 m, <<< 046 deg" describing the
