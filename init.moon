@@ -1,7 +1,6 @@
 -- -*- MoonScript -*-
 
-export *
---local *
+local *
 
 MAX_LIGHT = 15
 NOON = .5
