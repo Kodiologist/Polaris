@@ -10,7 +10,7 @@ NUM_WAYPOINTS = 5
 VISIT_GOAL = 10
 TIME_LIMIT = 15 * 60
 gen_waypoint_coordinate = ->
-    (if coinflip! then 1 else -1) * math.random(50, 100)
+    (if coinflip! then 1 else -1) * math.random(50, 150)
 
 sp = nil
 minetest.register_on_joinplayer (player) ->
@@ -101,17 +101,18 @@ waypoints_visited = 0
 minetest.register_on_mapgen_init (mgparams) ->
     if #waypoints == 0
         math.randomseed mgparams.seed
+        x, z = 0, 0
         waypoints = for n = 1, NUM_WAYPOINTS
-           {n: n,
-            created: false,
-            spawner: false,
-              -- 'spawner' is set to a particle spawner that
-              -- makes the waypoint visible.
-            ymin: -1/0,    -- negative infinity
-            ymax: 1/0,   -- positive infinity
-            pos: {
-                x: gen_waypoint_coordinate!,
-                z: gen_waypoint_coordinate!}}
+            x += gen_waypoint_coordinate!
+            z += gen_waypoint_coordinate!
+            {:n,
+                created: false,
+                spawner: false,
+                  -- 'spawner' is set to a particle spawner that
+                  -- makes the waypoint visible.
+                ymin: -1/0,    -- negative infinity
+                ymax: 1/0,   -- positive infinity
+                pos: {:x, :z}}
         current_waypoint = waypoints[1]
         marked_waypoint = current_waypoint
 
