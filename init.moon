@@ -11,7 +11,7 @@ NUM_WAYPOINTS = 5
 VISIT_GOAL = 10
   -- How many waypoints the player must visit to win.
   -- Should be greater than NUM_WAYPOINTS.
-TIME_LIMIT = 15 * 60  -- seconds
+TIME_LIMIT = 2 * 60  -- seconds
 START_TIMEOFDAY = 6 / 24  -- days
 END_TIMEOFDAY = (12 + 6.5) / 24  -- days
 gen_waypoint_coordinate = ->
@@ -193,7 +193,24 @@ minetest.register_on_punchnode (pos, node, puncher) ->
         else
             game_state = 'won'
             msg 'You win!'
-            msg "You won with #{fmt_time_diff time_left!} left."
+            tl = time_left!
+            msg "You won with #{fmt_time_diff tl} left."
+            if tl < 30
+                msg 'That was a close one!'
+            elseif tl < 60
+                msg 'And not a minute too soon.'
+            elseif tl < .1*TIME_LIMIT
+                msg 'Nice!'
+            elseif tl < .2*TIME_LIMIT
+                msg 'Cool!'
+            elseif tl < .3*TIME_LIMIT
+                msg 'Excellent!'
+            elseif tl < .4*TIME_LIMIT
+                msg 'Awesome!'
+            elseif tl < .5*TIME_LIMIT
+                msg 'Fantastic!'
+            else
+                msg 'Incredible!'
             current_waypoint = nil
             marked_waypoint = nil
         if current_waypoint
