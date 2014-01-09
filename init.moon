@@ -2,14 +2,22 @@
 
 local *
 
-MAX_LIGHT = 15
-NOON = .5
+------------------------------------------------------------
+-- * Parameters
+------------------------------------------------------------
 
 NUM_WAYPOINTS = 5
 VISIT_GOAL = 10
 TIME_LIMIT = 15 * 60
 gen_waypoint_coordinate = ->
     (if coinflip! then 1 else -1) * math.random(50, 150)
+
+------------------------------------------------------------
+-- * Constants
+------------------------------------------------------------
+
+MAX_LIGHT = 15
+NOON = .5
 
 sp = nil
 minetest.register_on_joinplayer (player) ->
