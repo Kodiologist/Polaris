@@ -11,7 +11,7 @@ NUM_WAYPOINTS = 5
 VISIT_GOAL = 10
   -- How many waypoints the player must visit to win.
   -- Should be greater than NUM_WAYPOINTS.
-TIME_LIMIT = 2 * 60  -- seconds
+TIME_LIMIT = 15 * 60  -- seconds
 START_TIMEOFDAY = 6 / 24  -- days
 END_TIMEOFDAY = (12 + 6.5) / 24  -- days
 gen_waypoint_coordinate = ->
