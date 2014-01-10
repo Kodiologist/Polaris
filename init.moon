@@ -216,10 +216,10 @@ minetest.register_on_punchnode (pos, node, puncher) ->
         if current_waypoint
             msg "Now find waypoint #{current_waypoint.n}."
 
-mk_waypoint_spawner = (wp_pos) -> minetest.add_particlespawner .25, -- particles / second
+mk_waypoint_spawner = (wp_pos) -> minetest.add_particlespawner 1, -- particles / second
     0, -- lifespan (infinite)
-    posplus wp_pos, p3 -.5, -.5, -.5, -- min. position
-    posplus wp_pos, p3 .5, .5, .5, -- max. position
+    wp_pos, -- min. position
+    wp_pos, -- max. position
     p3 0, 1, 0, -- min. velocity
     p3 0, 3, 0, -- max. velocity
     origin, origin, -- min. / max. acceleration
