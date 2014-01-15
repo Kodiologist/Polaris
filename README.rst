@@ -33,14 +33,9 @@ Caveats
 
 - Multiplayer is not implemented.
 
-- You can't save, in the sense that if you quit Minetest during a game of Polaris and then return to the world (without disabling the mod), things will get screwed up (e.g., the timer will be reset). Polaris is meant to be played in one sitting, anyway.
+- You can't save, in the sense that if you quit Minetest during a game of Polaris and then return to the world (without disabling the mod), things will get screwed up (e.g., the current waypoint will be reset to 1). Polaris is meant to be played in one sitting, anyway.
 
 - Similarly, you can't play Polaris with an existing world, only a new one for which you have Polaris enabled from the start. This is because waypoints are only created inside a ``minetest.register_on_generated`` callback.
-
-- The code assumes that Lua's ``os.time()`` returns a count of seconds. `Supposedly, there are platforms for which this is not the case, but it is the case on POSIX systems and Windows`__, which should cover pretty much everything, right?
-
-.. 
-__ http://www.lua.org/manual/5.1/manual.html#pdf-os.time
 
 License
 ============================================================

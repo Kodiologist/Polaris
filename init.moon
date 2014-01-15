@@ -83,7 +83,7 @@ yaw_diff = (yaw1, yaw2) ->
     else
         diff
 
-time_left = -> start_time + TIME_LIMIT - os.time!
+time_left = -> TIME_LIMIT - minetest.get_gametime!
 
 fmt_time_diff = (diff) ->
     if diff > 0
@@ -114,7 +114,6 @@ setup = ->
     inv\add_item 'main', 'default:axe_steel'
     inv\add_item 'main', 'default:shovel_steel'
     inv\add_item 'main', 'default:sign_wall 10'
-    start_time = os.time!
     game_state = 'playing'
 minetest.after 2, setup
 
