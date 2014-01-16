@@ -104,7 +104,8 @@ setup = ->
       -- This sets the speed of time such that the TIME_LIMIT
       -- will take the world exactly from START_TIMEOFDAY
       -- to END_TIMEOFDAY.
-    sp\set_physics_override 4, -- run speed
+    sp\set_physics_override do
+       4, -- run speed
        1.5, -- jump height
        1, -- gravity
        true, -- can the player sneak?
@@ -132,13 +133,14 @@ minetest.register_on_mapgen_init (mgparams) ->
         waypoints = for n = 1, NUM_WAYPOINTS
             x += gen_waypoint_coordinate!
             z += gen_waypoint_coordinate!
-            {:n,
-                created: false,
-                spawner: false,
+            {
+                :n
+                created: false
+                spawner: false
                   -- 'spawner' is set to a particle spawner that
                   -- makes the waypoint visible.
-                ymin: -1/0,    -- negative infinity
-                ymax: 1/0,   -- positive infinity
+                ymin: -1/0    -- negative infinity
+                ymax: 1/0   -- positive infinity
                 pos: {:x, :z}}
         current_waypoint = waypoints[1]
         marked_waypoint = current_waypoint
@@ -184,10 +186,8 @@ minetest.register_on_punchnode (pos, node, puncher) ->
         elseif waypoints_visited < VISIT_GOAL
           -- Activate a random waypoint (other than the current one),
           -- but don't mark it.
-            current_waypoint = waypoints[randelm for i = 1, NUM_WAYPOINTS
-                if i == current_waypoint.n
-                    continue
-                i]
+            current_waypoint = waypoints[randelm do
+                [i for i = 1, NUM_WAYPOINTS when i != current_waypoint.n]]
             marked_waypoint = nil
         else
             game_state = 'won'
@@ -215,7 +215,8 @@ minetest.register_on_punchnode (pos, node, puncher) ->
         if current_waypoint
             msg "Now find waypoint #{current_waypoint.n}."
 
-mk_waypoint_spawner = (wp_pos) -> minetest.add_particlespawner 1, -- particles / second
+mk_waypoint_spawner = (wp_pos) -> minetest.add_particlespawner do
+    1, -- particles / second
     0, -- lifespan (infinite)
     wp_pos, -- min. position
     wp_pos, -- max. position
@@ -234,13 +235,13 @@ mk_waypoint_spawner = (wp_pos) -> minetest.add_particlespawner 1, -- particles /
 hud_elem = nil
 
 setup_hud = ->
-    hud_elem = sp\hud_add {
-        hud_elem_type: 'text',
-        position: {x: 0.2, y: 0.9},
-        scale: {x: 100, y: 100},
-        alignment: {x: 0, y: -1},
-        number: 0xffffff, --color
-        text: ''}
+    hud_elem = sp\hud_add
+        hud_elem_type: 'text'
+        position: {x: 0.2, y: 0.9}
+        scale: {x: 100, y: 100}
+        alignment: {x: 0, y: -1}
+        number: 0xffffff --color
+        text: ''
 minetest.after 2, setup_hud
 
 update_hud = (dtime) ->
@@ -277,13 +278,13 @@ dist_and_dir = (pos1, pos2, yaw1) ->
         else if math.abs(deg) > 134
             'behind'
         else
-            string.format '%s %02.0f deg',
-                (if deg < 0 then '>>>' else '<<<'),
+            '%s %02.0f deg'\format do
+                if deg < 0 then '>>>' else '<<<',
                 math.abs(deg)
     distance = do
         m = dist_xz pos1, pos2
         if m < 1000
-            string.format '%03.0f m', m
+            '%03.0f m'\format m
         else
-            string.format '%1.2f km', m/1000
-    string.format '%s, %s', distance, dir
+            '%1.2f km'\format m/1000
+    '%s, %s'\format distance, dir
