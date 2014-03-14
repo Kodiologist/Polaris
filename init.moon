@@ -6,14 +6,22 @@ local *
 -- * Parameters
 ------------------------------------------------------------
 
-NUM_WAYPOINTS = 5
-  -- The number of waypoints to generate.
-VISIT_GOAL = 10
-  -- How many waypoints the player must visit to win.
-  -- Should be greater than NUM_WAYPOINTS.
-TIME_LIMIT = 15 * 60  -- seconds
-START_TIMEOFDAY = 6 / 24  -- days
-END_TIMEOFDAY = (12 + 6.5) / 24  -- days
+WAYPOINT_SCHEDULE = {
+    'new', 'new', 'new', 'old',
+    'new', 'old', 'old',
+    'new', 'old', 'old', 'old',
+    'new', 'old', 'old', 'old', 'old',
+    'new', 'old', 'old', 'old', 'old', 'old'}
+
+-- Time-limit parameters are in seconds.
+STARTING_TIME_LIMIT = 2 * 60
+NEW_WAYPOINT_TIME_BONUS = 1 * 60
+OLD_WAYPOINT_TIME_BONUS = .5 * 60
+
+START_TIMEOFDAY = 6 / 24  -- simulated days
+END_TIMEOFDAY = (12 + 6) / 24  -- simulated days
+CYCLE_MINS = .5 -- real minutes to go from START_TIMEOFDAY to END_TIMEOFDAY
+
 gen_waypoint_coordinate = ->
     (if coinflip! then 1 else -1) * math.random(50, 150)
 
@@ -83,7 +91,8 @@ yaw_diff = (yaw1, yaw2) ->
     else
         diff
 
-time_left = -> TIME_LIMIT - minetest.get_gametime!
+time_limit = STARTING_TIME_LIMIT
+time_left = -> time_limit - minetest.get_gametime!
 
 fmt_time_diff = (diff) ->
     if diff > 0
@@ -95,15 +104,18 @@ fmt_time_diff = (diff) ->
 -- * Setup
 ------------------------------------------------------------
 
-start_time = nil
+recycle_timeofday = ->
+    minetest.set_timeofday START_TIMEOFDAY
+    minetest.after 60*CYCLE_MINS, recycle_timeofday
+
 game_state = 'init'
 setup = ->
-    minetest.set_timeofday START_TIMEOFDAY
     minetest.setting_set 'time_speed',
-        (END_TIMEOFDAY - START_TIMEOFDAY) / (TIME_LIMIT / (60*60*24))
-      -- This sets the speed of time such that the TIME_LIMIT
-      -- will take the world exactly from START_TIMEOFDAY
-      -- to END_TIMEOFDAY.
+        (END_TIMEOFDAY - START_TIMEOFDAY) / (CYCLE_MINS / (60*24))
+      -- This sets the speed of time such that CYCLE_MINS minutes
+      -- of real time will take the world exactly from
+      -- START_TIMEOFDAY to END_TIMEOFDAY.
+    recycle_timeofday!
     sp\set_physics_override do
        4, -- run speed
        1.5, -- jump height
@@ -126,11 +138,12 @@ waypoints = {}
 current_waypoint = nil
 marked_waypoint = nil
 waypoints_visited = 0
+unique_waypoints_visited = 0
 minetest.register_on_mapgen_init (mgparams) ->
     if #waypoints == 0
         math.randomseed mgparams.seed
         x, z = 0, 0
-        waypoints = for n = 1, NUM_WAYPOINTS
+        waypoints = for n = 1, #[1 for w in *WAYPOINT_SCHEDULE when w == 'new']
             x += gen_waypoint_coordinate!
             z += gen_waypoint_coordinate!
             {
@@ -139,6 +152,7 @@ minetest.register_on_mapgen_init (mgparams) ->
                 spawner: false
                   -- 'spawner' is set to a particle spawner that
                   -- makes the waypoint visible.
+                found: false
                 ymin: -1/0    -- negative infinity
                 ymax: 1/0   -- positive infinity
                 pos: {:x, :z}}
@@ -172,48 +186,36 @@ minetest.register_on_punchnode (pos, node, puncher) ->
             current_waypoint.created and poseq pos, current_waypoint.pos
         msg "You found waypoint #{current_waypoint.n}."
         waypoints_visited += 1
+        unless current_waypoint.found
+            unique_waypoints_visited += 1
+            current_waypoint.found = true
         if current_waypoint.spawner
          -- This waypoint will no longer be current, so remove
          -- its spawner.
             minetest.delete_particlespawner current_waypoint.spawner
             current_waypoint.spawner = false
-        if waypoints_visited < NUM_WAYPOINTS
-          -- Activate the next waypoint and mark it.
-            current_waypoint = waypoints[current_waypoint.n + 1]
-            marked_waypoint = current_waypoint
-            if marked_waypoint.created
-                marked_waypoint.spawner = mk_waypoint_spawner marked_waypoint.pos
-        elseif waypoints_visited < VISIT_GOAL
-          -- Activate a random waypoint (other than the current one),
-          -- but don't mark it.
-            current_waypoint = waypoints[randelm do
-                [i for i = 1, NUM_WAYPOINTS when i != current_waypoint.n]]
-            marked_waypoint = nil
+        if waypoints_visited < #WAYPOINT_SCHEDULE
+            if WAYPOINT_SCHEDULE[waypoints_visited + 1] == 'new'
+              -- Activate the next waypoint and mark it.
+                current_waypoint = waypoints[unique_waypoints_visited + 1]
+                marked_waypoint = current_waypoint
+                if marked_waypoint.created
+                    marked_waypoint.spawner = mk_waypoint_spawner marked_waypoint.pos
+                time_limit += NEW_WAYPOINT_TIME_BONUS
+                msg "Now find the NEW waypoint #{current_waypoint.n}."
+            else
+              -- Activate a random previously found waypoint (other than the current one),
+              -- but don't mark it.
+                current_waypoint = randelm do
+                    [w for w in *waypoints when w.found and w != current_waypoint]
+                marked_waypoint = nil
+                time_limit += OLD_WAYPOINT_TIME_BONUS
+                msg "Now find the OLD waypoint #{current_waypoint.n}."
         else
             game_state = 'won'
-            msg 'You win!'
-            tl = time_left!
-            msg "You won with #{fmt_time_diff tl} left."
-            if tl < 30
-                msg 'That was a close one!'
-            elseif tl < 60
-                msg 'And not a minute too soon.'
-            elseif tl < .1*TIME_LIMIT
-                msg 'Nice!'
-            elseif tl < .2*TIME_LIMIT
-                msg 'Cool!'
-            elseif tl < .3*TIME_LIMIT
-                msg 'Excellent!'
-            elseif tl < .4*TIME_LIMIT
-                msg 'Awesome!'
-            elseif tl < .5*TIME_LIMIT
-                msg 'Fantastic!'
-            else
-                msg 'Incredible!'
             current_waypoint = nil
             marked_waypoint = nil
-        if current_waypoint
-            msg "Now find waypoint #{current_waypoint.n}."
+            msg 'You completed the whole schedule. Not too shabby!'
 
 mk_waypoint_spawner = (wp_pos) -> minetest.add_particlespawner do
     1, -- particles / second
@@ -257,11 +259,16 @@ hud_f = ->
             game_state = 'lost'
             msg "Sorry; you're out of time."
     if game_state == 'playing'
-        "Time left: #{fmt_time_diff tl}" .. do
-            if marked_waypoint
-                '\nNext: ' .. dist_and_dir sp\getpos!, marked_waypoint.pos, sp_yaw!
-            else
-                ''
+        "Found: %d unique, %d total\nTime left: %s\nNext: %d (%s)"\format do
+            unique_waypoints_visited,
+            waypoints_visited,
+            fmt_time_diff tl,
+            current_waypoint.n,
+            do   
+                if marked_waypoint
+                    dist_and_dir sp\getpos!, marked_waypoint.pos, sp_yaw!
+                else
+                    'old'
     elseif game_state == 'init'
        'Starting the game...'
     else
