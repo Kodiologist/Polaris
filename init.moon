@@ -258,21 +258,21 @@ hud_f = ->
         if tl <= 0
             game_state = 'lost'
             msg "Sorry; you're out of time."
-    if game_state == 'playing'
-        "Found: %d unique, %d total\nTime left: %s\nNext: %d (%s)"\format do
-            unique_waypoints_visited,
-            waypoints_visited,
-            fmt_time_diff tl,
-            current_waypoint.n,
-            do   
+    "Found: %d unique, %d total\n%s"\format do
+        unique_waypoints_visited,
+        waypoints_visited,
+        if game_state == 'playing'
+            "Time left: %s\nNext: %d (%s)"\format do
+                fmt_time_diff tl,
+                current_waypoint.n,
                 if marked_waypoint
                     dist_and_dir sp\getpos!, marked_waypoint.pos, sp_yaw!
                 else
                     'old'
-    elseif game_state == 'init'
-       'Starting the game...'
-    else
-       'Game Over'
+        elseif game_state == 'init'
+           'Starting the game...'
+        else
+           'Game Over'
 
 dist_and_dir = (pos1, pos2, yaw1) ->
 -- Returns a string like "030 m, <<< 046 deg" describing the
