@@ -22,8 +22,7 @@ START_TIMEOFDAY = 6 / 24  -- simulated days
 END_TIMEOFDAY = (12 + 6) / 24  -- simulated days
 CYCLE_MINS = .5 -- real minutes to go from START_TIMEOFDAY to END_TIMEOFDAY
 
-gen_waypoint_coordinate = ->
-    (if coinflip! then 1 else -1) * math.random(50, 150)
+gen_waypoint_distance = -> math.random 50, 300
 
 ------------------------------------------------------------
 -- * Constants
@@ -42,8 +41,6 @@ minetest.register_on_joinplayer (player) ->
 
 msg = (text) ->
     minetest.chat_send_player 'singleplayer', text, false
-
-coinflip = -> math.random! > .5
 
 randelm = (l) ->
     l[math.random #l]
@@ -144,8 +141,10 @@ minetest.register_on_mapgen_init (mgparams) ->
         math.randomseed mgparams.seed
         x, z = 0, 0
         waypoints = for n = 1, #[1 for w in *WAYPOINT_SCHEDULE when w == 'new']
-            x += gen_waypoint_coordinate!
-            z += gen_waypoint_coordinate!
+            distance = gen_waypoint_distance!
+            angle = math.random! * 2*math.pi
+            x += math.floor distance * math.cos angle
+            z += math.floor distance * math.sin angle
             {
                 :n
                 created: false
