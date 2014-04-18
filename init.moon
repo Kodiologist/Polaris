@@ -7,11 +7,13 @@ local *
 ------------------------------------------------------------
 
 WAYPOINT_SCHEDULE = {
-    'new', 'new', 'new', 'old',
+    'new', 'new', 'new',
+    'old',
     'new', 'old', 'old',
-    'new', 'old', 'old', 'old',
     'new', 'old', 'old', 'old', 'old',
-    'new', 'old', 'old', 'old', 'old', 'old'}
+    'new', 'old', 'old', 'old', 'old', 'old',
+    'new', 'old', 'old', 'old', 'old', 'old', 'old',
+    'new', 'old', 'old', 'old', 'old', 'old', 'old', 'old'}
 
 -- Time-limit parameters are in seconds.
 STARTING_TIME_LIMIT = 2 * 60
