@@ -24,6 +24,8 @@ START_TIMEOFDAY = 6 / 24  -- simulated days
 END_TIMEOFDAY = (12 + 6) / 24  -- simulated days
 CYCLE_MINS = .5 -- real minutes to go from START_TIMEOFDAY to END_TIMEOFDAY
 
+PRIZE_INTERVAL = 5 -- waypoints to find per prize
+
 gen_waypoint_distance = -> math.random 50, 300
 
 ------------------------------------------------------------
@@ -125,9 +127,34 @@ setup = ->
     inv\add_item 'main', 'default:pick_steel'
     inv\add_item 'main', 'default:axe_steel'
     inv\add_item 'main', 'default:shovel_steel'
-    inv\add_item 'main', 'default:sign_wall 10'
+    inv\add_item 'main', 'default:sign_wall 15'
     game_state = 'playing'
 minetest.after 2, setup
+
+------------------------------------------------------------
+-- * Prizes
+------------------------------------------------------------
+
+prizes = {
+    {time: 30}
+    'default:sign_wall 10'
+    'default:torch 8'
+    'default:pick_diamond'
+    'default:shovel_diamond'
+    'wool:violet 30'
+    'wool:red 30'
+}
+
+give_prize = ->
+    prize = randelm prizes
+    if type(prize) == 'table'
+        time_limit += prize.time
+        msg "Bonus time extension: +#{prize.time} seconds"
+    else
+        prize = ItemStack prize
+        sp\get_inventory!\add_item 'main', prize
+        msg "Bonus item: #{prize\get_count!} x #{prize\get_definition!.description}"
+    true
 
 ------------------------------------------------------------
 -- * Waypoints
@@ -187,6 +214,8 @@ minetest.register_on_punchnode (pos, node, puncher) ->
             current_waypoint.created and poseq pos, current_waypoint.pos
         msg "You found waypoint #{current_waypoint.n}."
         waypoints_visited += 1
+        if waypoints_visited % PRIZE_INTERVAL == 0
+            give_prize!
         unless current_waypoint.found
             unique_waypoints_visited += 1
             current_waypoint.found = true
