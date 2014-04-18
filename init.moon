@@ -2,6 +2,11 @@
 
 local *
 
+for file in *{'wand_digging'}
+    dofile '%s/%s.lua'\format do
+        minetest.get_modpath minetest.get_current_modname!,
+        file
+
 ------------------------------------------------------------
 -- * Parameters
 ------------------------------------------------------------
@@ -143,6 +148,7 @@ prizes = {
     'default:shovel_diamond'
     'wool:violet 30'
     'wool:red 30'
+    'polaris:wand_digging 3'
 }
 
 give_prize = ->
