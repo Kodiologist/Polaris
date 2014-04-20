@@ -1,26 +1,26 @@
-Polaris is a Minetest_ mod that makes Minetest into a game about navigation. Polaris puts you in a randomly generated world, guides you to a handful of randomly selected locations ("waypoints"), then requires you to find your way back to them unaided within a time limit. If you like running through forests and leaping across hills at breakneck speeds while trying not to get lost, Polaris is for you!
+Polaris is a Minetest_ mod that makes Minetest into a game about navigation. Polaris puts you in a randomly generated world, then guides you to a handful of randomly selected locations ("waypoints") and requires you to find your way back to them unaided within a time limit. If you like running through forests and leaping across hills at breakneck speeds while trying not to get lost, Polaris is for you!
 
 How to play
 ============================================================
 
-First compile the MoonScript file ``init.moon`` to Lua and name the result ``init.lua``. If you have MoonScript installed, the command ``moonc init.moon`` will suffice; otherwise, use `the online compiler`__. `Install the mod`_ with the name "polaris" (Minetest will complain if you use a capital letter). Then create a new world, enable the mod, and start a single-player game. Creative mode should be off, but damage is optional.
+First compile the MoonScript files to Lua. If you have MoonScript installed, the command ``moonc FILE`` will suffice; otherwise, use `the online compiler`__. `Install the mod`_ with the name "polaris" (Minetest will complain if you use a capital letter). Then create a new world, enable the mod, and start a single-player game. Creative mode should be off, but damage is optional.
 
 ..
 __ http://moonscript.org/compiler/
 
 When you begin the game, you'll get a few useful items, and you'll see a timer and information about how to get to the first waypoint like this:
 
-.. image:: http://i.imgur.com/P2zt04x.png
+.. image:: http://i.imgur.com/JOfAF60.png
 
-Here the heads-up display says that the next waypoint is 135 meters (i.e., node-lengths) away (on the X-Z plane; i.e., as the crow flies) and 59 degrees to the left. Travel to the waypoint. Notice that in Polaris, you can run much faster and jump somewhat higher than normal (high enough to jump on top of a two-block column). The waypoint is an ordinary chunk of ground, but for now (as long as your compass points to it), you can see it easily because rainbows are constantly shooting out of it:
+Here the heads-up display says that the next waypoint is waypoint number 1, and it's 57 meters (i.e., node-lengths) away (on the X-Z plane; i.e., as the crow flies) and 113 degrees to the right. Travel to the waypoint. Notice that in Polaris, you can run much faster and jump somewhat higher than normal (high enough to jump on top of a two-block column). The waypoint is an ordinary chunk of ground, but for now (as long as your compass points to it), you can see it easily because rainbows are constantly shooting out of it:
 
-.. image:: http://i.imgur.com/2rUASul.png
+.. image:: http://i.imgur.com/NUFlm4N.png
 
-Punch the waypoint to tell the game you've found it. You will then be asked to find a new waypoint (the rainbows will stop shooting out of this one, and your heads-up display will guide you to the new one). When you continue in this wise until you've found all the waypoints, you will be asked to find old waypoints. Now, the heads-up display and rainbows will disappear, so you'll need to use your own sense of direction and any landmarks or shortcuts you've built yourself. Try to finish the game as quickly as possible.
+Punch the waypoint to tell the game you've found it. You will then be asked to find a new waypoint (the rainbows will stop shooting out of this one, and your heads-up display will guide you to the new one). Later, you will be asked to find an old waypoint: the direction and distance indicators will disappear, and there won't be any rainbows at your destination, so you'll need to use your own sense of direction and any landmarks or shortcuts you've built yourself. As the game continues, you'll need to find waypoints both old and new. There's a small time bonus each time you find a waypoint, and you'll receive a prize for every few waypoints you find. Try to find as many waypoints as you can before running out of time.
 
 Note that waypoints are locations, not blocks. If you destroy the block at a waypoint, making it unpunchable, you can restore the waypoint to punchability by placing a new block there.
 
-You don't have to worry about nightfall. Daylight will last for at least the duration of the time limit.
+You don't have to worry about nightfall. Daylight is enforced during Polaris.
 
 To make the game easier or harder, see the top of the code for some parameters to tweak.
 
