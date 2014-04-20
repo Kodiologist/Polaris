@@ -27,7 +27,7 @@ OLD_WAYPOINT_TIME_BONUS = .5 * 60
 
 START_TIMEOFDAY = 6 / 24  -- simulated days
 END_TIMEOFDAY = (12 + 6) / 24  -- simulated days
-CYCLE_MINS = .5 -- real minutes to go from START_TIMEOFDAY to END_TIMEOFDAY
+CYCLE_MINS = 10 -- real minutes to go from START_TIMEOFDAY to END_TIMEOFDAY
 
 PRIZE_INTERVAL = 5 -- waypoints to find per prize
 
