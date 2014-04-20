@@ -40,6 +40,8 @@ Caveats
 License
 ============================================================
 
+Textures are licensed under a `Creative Commons Attribution-ShareAlike 4.0 International License`_.
+
 This program is copyright 2014 Kodi Arfer.
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
@@ -48,4 +50,5 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 .. _Minetest: http://minetest.net
 .. _`Install the mod`: http://wiki.minetest.net/Installing_Mods
+.. _`Creative Commons Attribution-ShareAlike 4.0 International License`: http://creativecommons.org/licenses/by-sa/4.0/
 .. _`GNU Lesser General Public License`: http://www.gnu.org/licenses/

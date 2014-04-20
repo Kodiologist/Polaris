@@ -60,7 +60,7 @@ adjust_pos = (pos, dir, h, v) ->
 
 minetest.register_craftitem 'polaris:wand_digging',
     description: 'Wand of Digging'
-    inventory_image: 'bucket.png'
+    inventory_image: 'polaris_wand_digging.png'
     on_use: (itemstack, user, pointed_thing) ->
         dir = posm .5, user\get_look_dir!
         pos = posplus user\getpos!, p3 0, PLAYER_HEIGHT, 0
