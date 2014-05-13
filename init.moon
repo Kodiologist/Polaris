@@ -33,6 +33,8 @@ PRIZE_INTERVAL = 5 -- waypoints to find per prize
 
 gen_waypoint_distance = -> math.random 50, 300
 
+SETUP_LATENCY = 2  -- seconds
+
 ------------------------------------------------------------
 -- * Constants
 ------------------------------------------------------------
@@ -43,6 +45,7 @@ NOON = .5
 sp = nil
 minetest.register_on_joinplayer (player) ->
     sp = minetest.get_player_by_name 'singleplayer'
+    minetest.after SETUP_LATENCY, setup
 
 ------------------------------------------------------------
 -- * Subroutines
@@ -134,7 +137,7 @@ setup = ->
     inv\add_item 'main', 'default:shovel_steel'
     inv\add_item 'main', 'default:sign_wall 15'
     game_state = 'playing'
-minetest.after 2, setup
+    setup_hud!
 
 ------------------------------------------------------------
 -- * Prizes
@@ -280,7 +283,6 @@ setup_hud = ->
         alignment: {x: 0, y: -1}
         number: 0xffffff --color
         text: ''
-minetest.after 2, setup_hud
 
 update_hud = (dtime) ->
     if hud_elem
